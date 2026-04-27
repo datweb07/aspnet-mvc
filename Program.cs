@@ -31,6 +31,8 @@ namespace learn_asp.net_mvc
             */
             //builder.Services.AddSingleton<IRepository>(services => new MyRepository(services.GetRequiredService<ILogger<MyRepository>>()));
 
+            builder.Services.AddSingleton<IUserRepository>(services => new InMemoryUserRepository());
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.

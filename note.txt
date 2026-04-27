@@ -1,0 +1,11 @@
+Attribute quan trọng thường dùng
+
+[NonController]: Chỉ định 1 lớp không phải là controller > Các hàm trong đó không được gọi thông qua URL.
+
+[NonAction]: Chỉ định 1 hàm không phải là action method > Không được map vào URL.
+
+Nhóm [HttpGet, Post, Put...]: Chỉ định 1 Http Method được gọi tới Method, có thể kết hợp. 
+
+Nhóm [From]: Chỉ định nguồn dữ liệu (Header, Form, Query, Service...) để lấy giá trị cho tham số của 1 Action Method.
+
+[Route]: Chỉ định URL được map vào Action Method.
