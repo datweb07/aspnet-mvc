@@ -47,3 +47,32 @@ Các Attribute (Thuộc tính) phổ biến trong ASP.NET để quản lý hành
 * **Thuộc tính `[Route]`:**
   * Cho phép định nghĩa một đường dẫn (URL) tùy chỉnh cho Controller hoặc Action Method thay vì dùng tên mặc định. 
   * Ví dụ: Khai báo `[Route("api/users")]` sẽ ép người dùng phải gọi đúng đường dẫn đó thay vì đường dẫn cơ bản mặc định.
+
+---
+
+# 3. Routing
+Giải thích về cơ chế **Routing (Điều hướng)** trong ASP.NET MVC, có nhiệm vụ ánh xạ (map) một URL (đường dẫn web) được gửi từ trình duyệt tới một Action Method cụ thể trong Controller.
+
+Nếu ASP.NET không tìm thấy bất kỳ Action Method nào khớp với URL, nó sẽ trả về lỗi **404 (Not Found)**.
+
+Có 2 phương pháp chính để định nghĩa Routing trong ASP.NET:
+
+### 1. Conventional Routing (Khai báo tập trung tại Startup/Program.cs)
+Đây là cách thiết lập các quy tắc chung cho toàn bộ ứng dụng khi khởi động chương trình.
+* Sử dụng hai lệnh chính trong file cấu hình:
+  * `app.UseRouting()`: Đăng ký middleware routing để bắt và phân tích URL.
+  * `app.MapControllerRoute()`: Đặt ra các quy tắc khớp URL (pattern matching).
+* **Quy tắc mặc định:** `{controller=Home}/{action=Index}/{id?}`
+  * Nếu không gõ URL gì cả, hệ thống mặc định gọi `HomeController` và hàm `Index`.
+  * `id?` có dấu `?` nghĩa là tham số này không bắt buộc (optional).
+* **Tạo quy tắc tùy chỉnh:** Có thể map những đường dẫn ngắn gọn hơn. 
+  * *Ví dụ:* URL dạng `/p/123` thay vì `/product/details/123` để tối ưu SEO. Ta có thể thêm một route mới đặt tên pattern là `/p/{id}` và chỉ định nó trỏ cứng về `controller="Product"` và `action="Details"`.
+* **Lưu ý:** Các Route được khai báo sẽ ưu tiên chạy theo **thứ tự từ trên xuống dưới**. Route nào khai báo trước sẽ được dùng để khớp trước.
+
+### 2. Attribute Routing (Khai báo bằng Thuộc tính trực tiếp)
+Phương pháp này dùng các thẻ attribute đặt ngay trên đầu Action Method, phù hợp cho các dự án lớn, phức tạp để tránh làm file cấu hình chung bị quá tải.
+* Sử dụng attribute `[Route("...")]`.
+* *Ví dụ:* Thay vì thiết lập ở `Program.cs`, ta có thể đặt trực tiếp `[Route("p/{id}")]` ngay trên hàm `Details()` của `ProductController`.
+* **Nhiều Route cho 1 hàm:** Có thể gắn nhiều thẻ `[Route]` khác nhau cho cùng một hàm (ví dụ: `[Route("p/{id}")]` và `[Route("product/{id}")]` thì cả hai link này đều gọi chung vào một hàm).
+* **Ràng buộc kiểu dữ liệu (Route Constraints):** * Có thể chỉ định kiểu dữ liệu ngay trên tham số URL để phân biệt hàm gọi.
+  * *Ví dụ:* `[Route("product/{id:int}")]` sẽ chỉ nhận tham số là số nguyên, trong khi `[Route("product/{name}")]` sẽ gọi một hàm khác nhận tham số dạng chuỗi (string). Nhờ đó, URL `product/123` và `product/nuoc-hoa` sẽ trỏ đến hai hàm xử lý khác nhau.

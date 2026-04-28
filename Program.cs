@@ -52,7 +52,17 @@ namespace learn_asp.net_mvc
 
             app.MapControllerRoute(
                 name: "default",
-                pattern: "{controller=Home}/{action=Index}/{id?}");
+                pattern: "{controller=Home}/{action=Privacy}/{id?}");
+            
+            //app.MapControllerRoute(
+            //    name: "certificate",
+            //    pattern: "p/{id}",
+            //    defaults: new { controller = "HSK", action = "Certificate" });
+
+            //app.MapControllerRoute(
+            //    name: "collection",
+            //    pattern: "c/{id}",
+            //    defaults: new { controller = "Collection", action = "Index" });
 
             app.Run();
         }
