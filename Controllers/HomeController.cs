@@ -1,3 +1,4 @@
+using learn_asp.net_mvc.Helpers;
 using learn_asp.net_mvc.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
@@ -20,8 +21,11 @@ namespace learn_asp.net_mvc.Controllers
 
         public IActionResult Index()
         {
+            _logger.LogInformation("ID: {id}, Request: {rq}", HttpContext.TraceIdentifier, Request.GetDebugInfo());
             return View(new TestModel() { Name = "Dat" });
         }
+
+        
 
         //public IActionResult Privacy()
         //{

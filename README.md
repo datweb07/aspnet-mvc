@@ -76,3 +76,52 @@ Phương pháp này dùng các thẻ attribute đặt ngay trên đầu Action M
 * **Nhiều Route cho 1 hàm:** Có thể gắn nhiều thẻ `[Route]` khác nhau cho cùng một hàm (ví dụ: `[Route("p/{id}")]` và `[Route("product/{id}")]` thì cả hai link này đều gọi chung vào một hàm).
 * **Ràng buộc kiểu dữ liệu (Route Constraints):** * Có thể chỉ định kiểu dữ liệu ngay trên tham số URL để phân biệt hàm gọi.
   * *Ví dụ:* `[Route("product/{id:int}")]` sẽ chỉ nhận tham số là số nguyên, trong khi `[Route("product/{name}")]` sẽ gọi một hàm khác nhận tham số dạng chuỗi (string). Nhờ đó, URL `product/123` và `product/nuoc-hoa` sẽ trỏ đến hai hàm xử lý khác nhau.
+
+---
+
+# 4. HttpContext
+Tìm hiểu lớp `HttpContext` - một trong những thành phần cốt lõi và quan trọng bậc nhất trong ASP.NET Core. 
+
+`HttpContext` được ví như một "chiếc hộp/túi chứa" lưu giữ toàn bộ thông tin về ngữ cảnh (context) của một Request gửi từ trình duyệt lên và Response mà Server chuẩn bị trả về.
+
+### 1. Các thuộc tính quan trọng của HttpContext
+Khi chạy chế độ Debug và xem `HttpContext` trong cửa sổ Watch, chúng ta có thể thấy các thuộc tính chính sau:
+
+*   **`Request`**: Chứa toàn bộ thông tin mà client (trình duyệt) gửi lên (như URL, Headers, Body, Cookies, HTTP Method).
+*   **`Response`**: Chứa thông tin mà server sẽ trả về cho client.
+*   **`Connection`**: Chứa các thông tin về kết nối mạng vật lý giữa client và server (Ví dụ: Địa chỉ IP Local, IP Remote, Port đang kết nối, và Client Certificate nếu có).
+*   **`Features`**: Chứa danh sách các tính năng (middlewares) đã được đăng ký và cấu hình trong hệ thống (thay đổi tùy theo cách bạn setup trong `Program.cs`).
+*   **`User`**: Chứa thông tin về người dùng hiện tại (nếu họ đã đăng nhập). Nếu chưa cài đặt middleware Authentication, mặc định nó sẽ trả về một user "vô danh" (Anonymous).
+*   **`Items`**: Là một Dictionary (như một bộ nhớ đệm nội bộ) giúp lưu trữ và chia sẻ dữ liệu tạm thời giữa các Middleware hoặc các Component với nhau trong suốt vòng đời của *chính request đó*.
+*   **`Session`**: Lưu trữ dữ liệu phiên (session) của người dùng. **Lưu ý:** Không giống .NET Framework cũ, Session trong ASP.NET Core là tính năng tùy chọn (optional). Nếu bạn không gọi `app.UseSession()` lúc khởi động, việc truy cập vào thuộc tính này sẽ văng lỗi.
+*   **`WebSockets`**: Lưu thông tin quản lý kết nối thời gian thực bằng giao thức WebSocket.
+*   **`RequestServices`**: Chính là DI Container (Dependency Injection), cho phép bạn lấy các service đã được đăng ký ra để sử dụng ngay giữa chừng.
+*   **`TraceIdentifier`**: Một chuỗi ID ngẫu nhiên, duy nhất được dùng để định danh cho Request hiện tại, rất hữu ích khi đọc file Log để dò lỗi.
+*   **`RequestAborted`**: Một `CancellationToken` cho biết client đã ngắt kết nối (hủy request) hay chưa, giúp server dừng các tác vụ nặng tránh lãng phí tài nguyên.
+
+### 2. Sự khác biệt giữa Method và Extension Method
+*   **Method (Phương thức nội tại):** Là các hàm được viết trực tiếp bên trong mã nguồn gốc của class `HttpContext`.
+*   **Extension Method (Phương thức mở rộng):** Được viết ở một class *static* bên ngoài, nhưng có cú pháp đặc biệt (dùng từ khóa `this`) để gọi trông giống như nó là một hàm gốc của `HttpContext`.
+
+### 3. Hướng dẫn tự tạo Extension Method
+Thực hành (demo) viết một Extension Method để in ra thông tin debug của `HttpRequest`.
+Quy tắc chuẩn khi viết Extension Method:
+1.  **Phải đặt trong một class `static`**. Theo chuẩn nên đặt tên có hậu tố là `Extension` (VD: `RequestExtension`).
+2.  **Hàm (Method) bên trong cũng phải là `static`**.
+3.  Tham số đầu tiên của hàm phải có từ khóa **`this`** đi kèm với kiểu dữ liệu mà bạn muốn mở rộng.
+
+**Ví dụ Code minh họa trong video:**
+```csharp
+namespace MyApp.Helpers
+{
+    // 1. Class phải là static
+    public static class RequestExtension 
+    {
+        // 2. Method phải là public static
+        // 3. Tham số đầu tiên có từ khóa 'this' + Kiểu dữ liệu (HttpRequest)
+        public static string GetDebugInfo(this HttpRequest request)
+        {
+            return $"Host: {request.Host}, Scheme: {request.Scheme}";
+        }
+    }
+}
